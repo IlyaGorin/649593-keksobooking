@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Илья Горин](https://up.htmlacademy.ru/javascript/16/user/649593).
-* Наставник: `Неизвестно`.
+* Наставник: [Денис Байдаров](https://up.htmlacademy.ru/htmlcss/22/user/7956).
 
 ---
 
