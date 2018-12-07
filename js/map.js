@@ -69,21 +69,6 @@ var getRandomNumberArr = function (arr) {
   return number;
 };
 
-var pickRandomProperty = function (obj) {
-  var result;
-  var count = 0;
-  for (var prop in obj) {
-    if (Math.random() < 1 / ++count) {
-      result = prop;
-    }
-  }
-  return result;
-};
-
-var printObjValue = function (key, obj) {
-  return obj[key];
-};
-
 var getRandomLengthArray = function (arr) {
   var newArr = shuffle(arr.slice(getRandomNumber(0, arr.length)));
   return newArr;
@@ -102,7 +87,7 @@ var getRandomObj = function (amount) {
         title: titles[i],
         address: locationX + ', ' + locationY,
         price: getRandomNumber(MIN_PRICE, MAX_PRICE),
-        type: pickRandomProperty(types),
+        type: getRandomNumberArr(Object.keys(types)),
         rooms: getRandomNumber(MIN_ROOMS, MAX_ROOMS),
         guests: getRandomNumber(MIN_GUESTS, MAX_GUESTS),
         checkin: getRandomNumberArr(checkins),
@@ -121,6 +106,7 @@ var getRandomObj = function (amount) {
   }
   return arr;
 };
+
 
 var announcementsArr = getRandomObj(ANNOUNCEMENT_AMOUNT);
 var firstObj = announcementsArr[0];
@@ -148,7 +134,7 @@ var createAnnouncementCard = function (obj) {
   cardItem.querySelector('.popup__text--price').textContent = obj.offer.price + ' ' + '₽/ночь';
   var cardType = cardItem.querySelector('.popup__type');
 
-  cardType.textContent = printObjValue(obj.offer.type, types);
+  cardType.textContent = types[obj.offer.type];
 
   cardItem.querySelector('.popup__text--capacity').textContent = obj.offer.rooms + ' комнаты для ' + obj.offer.guests + ' гостей.';
   cardItem.querySelector('.popup__text--time').textContent = 'Заезд после ' + obj.offer.checkin + ', выезд после ' + obj.offer.checkout;
