@@ -13,8 +13,8 @@ var MAX_LOCATION_Y = 630;
 var ANNOUNCEMENT_AMOUNT = 8;
 var PIN_AMOUNT = 8;
 var PIN_WIDTH = 40;
-var PIN_HEIGHT = 40;
 var ESC__KEYCODE = 27;
+var PIN_POINTER_HEIGHT = 22;
 
 var pin = document.querySelector('#pin').content.querySelector('.map__pin');
 var pinList = document.querySelector('.map__pins');
@@ -52,15 +52,16 @@ var photosArr = [
 ];
 
 var shuffle = function (anyArr) {
+  var newArr = anyArr.slice(0);
   var j;
   var temp;
-  for (var i = anyArr.length - 1; i > 0; i--) {
+  for (var i = newArr.length - 1; i > 0; i--) {
     j = Math.floor(Math.random() * (i + 1));
-    temp = anyArr[j];
-    anyArr[j] = anyArr[i];
-    anyArr[i] = temp;
+    temp = newArr[j];
+    newArr[j] = newArr[i];
+    newArr[i] = temp;
   }
-  return anyArr;
+  return newArr;
 };
 
 var getRandomNumberArr = function (arr) {
@@ -116,7 +117,7 @@ var createPinArr = function (amount) {
     pinListFragment.appendChild(pinItem);
     pinList.appendChild(pinListFragment);
     pinItem.style.left = (announcementsArr[i].location.x + PIN_WIDTH / 2) + 'px';
-    pinItem.style.top = announcementsArr[i].location.y + PIN_HEIGHT + 'px';
+    pinItem.style.top = announcementsArr[i].location.y + 'px';
     var pinItemImage = pinItem.querySelector('img');
     pinItemImage.src = announcementsArr[i].author.avatar;
     pinItemImage.alt = announcementsArr[i].offer.title;
@@ -165,21 +166,28 @@ var mainPin = document.querySelector('.map__pin--main');
 var fieldsets = document.querySelectorAll('fieldset');
 var form = document.querySelector('.ad-form');
 var addressInput = document.querySelector('#address');
+var filtersForm = document.querySelectorAll('.map__filter');
+
 
 addressInput.readOnly = true;
 addressInput.disabled = true;
 
-for (var i = 0; i < fieldsets.length; i++) {
-  fieldsets[i].disabled = true;
-}
+var switchesFieldsetsValue = function (arr, value) {
+  for (var i = 0; i < arr.length; i++) {
+    arr[i].disabled = value;
+  }
+};
+
+switchesFieldsetsValue(filtersForm, true);
+switchesFieldsetsValue(fieldsets, true);
 
 var pageActivation = function () {
   map.classList.remove('map--faded');
   form.classList.remove('ad-form--disabled');
-  for (var j = 0; j < fieldsets.length; j++) {
-    fieldsets[j].disabled = false;
-  }
+  switchesFieldsetsValue(filtersForm, false);
+  switchesFieldsetsValue(fieldsets, false);
   createPinArr(PIN_AMOUNT);
+  getMainPinCoordinatesActive();
 };
 
 var closeCard = function () {
@@ -219,12 +227,49 @@ mainPin.addEventListener('mouseup', function () {
   }
 });
 
+
+var MAIN_PIN_COORDINATE_X = parseInt(mainPin.style.left, 10);
+var MAIN_PIN_COORDINATE_Y = parseInt(mainPin.style.top, 10);
+
 var getMainPinCoordinates = function () {
-  var coordinateX = String(parseInt(mainPin.style.left, 10) + Math.round(mainPin.offsetWidth / 2));
-  var coordinateY = String(parseInt(mainPin.style.top, 10) + Math.round(mainPin.offsetHeight / 2));
+  var coordinateX = String(MAIN_PIN_COORDINATE_X + Math.round(mainPin.offsetWidth / 2));
+  var coordinateY = String(MAIN_PIN_COORDINATE_Y + Math.round(mainPin.offsetHeight / 2));
   addressInput.value = coordinateX + ' , ' + coordinateY;
   return addressInput;
 };
 getMainPinCoordinates();
 
+var getMainPinCoordinatesActive = function () {
+  var coordinateX = String(MAIN_PIN_COORDINATE_X + Math.round(mainPin.offsetWidth / 2));
+  var coordinateY = String(MAIN_PIN_COORDINATE_Y + Math.round(mainPin.offsetHeight) + PIN_POINTER_HEIGHT);
+  addressInput.value = coordinateX + ' , ' + coordinateY;
+  return addressInput;
+};
 
+var formTitle = form.querySelector('#title');
+formTitle.required = true;
+formTitle.maxLength = 100;
+formTitle.minLength = 30;
+
+var formPrice = form.querySelector('#price');
+formPrice.required = true;
+formPrice.max = 1000000;
+
+var formType = form.querySelector('#type');
+
+var minPrice = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
+var setMinPrice = function (price) {
+  formPrice.min = price;
+  formPrice.placeholder = price;
+};
+
+
+formType.addEventListener('change', function (evt) {
+  setMinPrice(minPrice[evt.target.value]);
+});
