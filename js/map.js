@@ -13,14 +13,27 @@ var MAX_LOCATION_Y = 630;
 var ANNOUNCEMENT_AMOUNT = 8;
 var PIN_AMOUNT = 8;
 var PIN_WIDTH = 40;
-var PIN_HEIGHT = 40;
+var ESC__KEYCODE = 27;
+
+
+var map = document.querySelector('.map');
+var mainPin = document.querySelector('.map__pin--main');
+var fieldsets = document.querySelectorAll('fieldset');
+var form = document.querySelector('.ad-form');
+var addressInput = document.querySelector('#address');
+var filtersForm = document.querySelectorAll('.map__filter');
+var PIN_POINTER_HEIGHT = 22;
+var MAIN_PIN_WIDTH = mainPin.offsetWidth / 2;
+var MAIN_PIN_HEIGHT = mainPin.offsetHeight / 2;
+var MAIN_PIN_ACTIVE_HEIGHT = mainPin.offsetHeight + PIN_POINTER_HEIGHT;
+var MAIN_PIN_COORDINATE_X = parseInt(mainPin.style.left, 10);
+var MAIN_PIN_COORDINATE_Y = parseInt(mainPin.style.top, 10);
 
 var pin = document.querySelector('#pin').content.querySelector('.map__pin');
 var pinList = document.querySelector('.map__pins');
-var map = document.querySelector('.map');
 var card = document.querySelector('#card').content.querySelector('.map__card');
 var filtersContainer = document.querySelector('.map__filters-container');
-map.classList.toggle('map--faded');
+
 
 var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * ((max + 1) - min)) + min;
@@ -52,15 +65,16 @@ var photosArr = [
 ];
 
 var shuffle = function (anyArr) {
+  var newArr = anyArr.slice(0);
   var j;
   var temp;
-  for (var i = anyArr.length - 1; i > 0; i--) {
+  for (var i = newArr.length - 1; i > 0; i--) {
     j = Math.floor(Math.random() * (i + 1));
-    temp = anyArr[j];
-    anyArr[j] = anyArr[i];
-    anyArr[i] = temp;
+    temp = newArr[j];
+    newArr[j] = newArr[i];
+    newArr[i] = temp;
   }
-  return anyArr;
+  return newArr;
 };
 
 var getRandomNumberArr = function (arr) {
@@ -107,9 +121,7 @@ var getRandomObj = function (amount) {
   return arr;
 };
 
-
 var announcementsArr = getRandomObj(ANNOUNCEMENT_AMOUNT);
-var firstObj = announcementsArr[0];
 
 var createPinArr = function (amount) {
   for (var i = 0; i < amount; i++) {
@@ -118,20 +130,20 @@ var createPinArr = function (amount) {
     pinListFragment.appendChild(pinItem);
     pinList.appendChild(pinListFragment);
     pinItem.style.left = (announcementsArr[i].location.x + PIN_WIDTH / 2) + 'px';
-    pinItem.style.top = announcementsArr[i].location.y + PIN_HEIGHT + 'px';
+    pinItem.style.top = announcementsArr[i].location.y + 'px';
     var pinItemImage = pinItem.querySelector('img');
     pinItemImage.src = announcementsArr[i].author.avatar;
     pinItemImage.alt = announcementsArr[i].offer.title;
+    pinItem.dataset.id = i;
   }
-  return pinListFragment;
 };
-createPinArr(PIN_AMOUNT);
 
 var createAnnouncementCard = function (obj) {
   var cardItem = card.cloneNode(true);
   cardItem.querySelector('.popup__title').textContent = obj.offer.title;
   cardItem.querySelector('.popup__text--address').textContent = obj.offer.address;
   cardItem.querySelector('.popup__text--price').textContent = obj.offer.price + ' ' + '₽/ночь';
+  cardItem.querySelector('.popup__avatar').src = obj.author.avatar;
   var cardType = cardItem.querySelector('.popup__type');
 
   cardType.textContent = types[obj.offer.type];
@@ -156,10 +168,106 @@ var createAnnouncementCard = function (obj) {
 
   for (var j = 0; j < obj.offer.photos.length; j++) {
     var photosItem = photosImg.cloneNode(true);
-    photosItem.src = photosArr[j];
+    photosItem.src = obj.offer.photos[j];
     photos.appendChild(photosItem);
   }
   map.insertBefore(cardItem, filtersContainer);
 };
 
-createAnnouncementCard(firstObj);
+addressInput.readOnly = true;
+addressInput.disabled = true;
+
+var switchesFieldsetsValue = function (arr, value) {
+  for (var i = 0; i < arr.length; i++) {
+    arr[i].disabled = value;
+  }
+};
+
+switchesFieldsetsValue(filtersForm, true);
+switchesFieldsetsValue(fieldsets, true);
+
+var pageActivation = function () {
+  map.classList.remove('map--faded');
+  form.classList.remove('ad-form--disabled');
+  switchesFieldsetsValue(filtersForm, false);
+  switchesFieldsetsValue(fieldsets, false);
+  createPinArr(PIN_AMOUNT);
+  getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
+};
+
+var closeCard = function () {
+  var mapCard = document.querySelector('.map__card');
+  if (mapCard) {
+    mapCard.remove();
+  }
+};
+
+var openCard = function (id) {
+  var mapCard = document.querySelector('.map__card');
+  if (mapCard) {
+    closeCard();
+  }
+  createAnnouncementCard(announcementsArr[id]);
+};
+
+var mainPinMouseupHandler = function () {
+  pageActivation();
+  var pinsLists = pinList.querySelectorAll('.map__pin:not(.map__pin--main)');
+  for (var j = 0; j < pinsLists.length; j++) {
+    pinsLists[j].addEventListener('click', function (evt) {
+      var button = evt.currentTarget;
+      var pinId = button.dataset.id;
+      closeCard();
+      openCard(pinId);
+      var closeButton = document.querySelector('.popup__close');
+      closeButton.addEventListener('click', function () {
+        closeCard();
+      });
+      window.addEventListener('keydown', function (keydownEvt) {
+        if (keydownEvt.keyCode === ESC__KEYCODE) {
+          closeCard();
+        }
+      });
+    });
+  }
+  mainPin.removeEventListener('mouseup', mainPinMouseupHandler);
+};
+
+mainPin.addEventListener('mouseup', mainPinMouseupHandler);
+
+var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
+  var coordinateX = String(coordX + Math.round(pinWidth));
+  var coordinateY = String(coodrY + Math.round(pinHeight));
+  addressInput.value = coordinateX + ' , ' + coordinateY;
+  return addressInput;
+};
+
+getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_HEIGHT);
+// 4-2
+var formTitle = form.querySelector('#title');
+formTitle.required = true;
+formTitle.maxLength = 100;
+formTitle.minLength = 30;
+
+var formPrice = form.querySelector('#price');
+formPrice.required = true;
+formPrice.max = 1000000;
+
+var formType = form.querySelector('#type');
+
+var minPrice = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
+var setMinPrice = function (price) {
+  formPrice.min = price;
+  formPrice.placeholder = price;
+};
+
+
+formType.addEventListener('change', function (evt) {
+  setMinPrice(minPrice[evt.target.value]);
+});
