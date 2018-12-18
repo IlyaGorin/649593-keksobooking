@@ -22,6 +22,7 @@ var fieldsets = document.querySelectorAll('fieldset');
 var form = document.querySelector('.ad-form');
 var addressInput = document.querySelector('#address');
 var filtersForm = document.querySelectorAll('.map__filter');
+
 var PIN_POINTER_HEIGHT = 22;
 var MAIN_PIN_WIDTH = mainPin.offsetWidth / 2;
 var MAIN_PIN_HEIGHT = mainPin.offsetHeight / 2;
@@ -271,3 +272,36 @@ var setMinPrice = function (price) {
 formType.addEventListener('change', function (evt) {
   setMinPrice(minPrice[evt.target.value]);
 });
+
+var roomNumbers = form.querySelector('#room_number');
+var capacity = form.querySelector('#capacity');
+var capacityOption = capacity.querySelectorAll('option');
+capacityOption[2].selected = true;
+switchesFieldsetsValue(capacityOption, true);
+
+roomNumbers.addEventListener('change', function (evt) {
+  switchesFieldsetsValue(capacityOption, true);
+  var currentValue = evt.target.value;
+  if (currentValue === '100') {
+    capacityOption[capacityOption.length - 1].disabled = false;
+    capacityOption[capacityOption.length - 1].selected = true;
+  } else {
+    for (var i = 0; i < capacityOption.length; i++) {
+      if (currentValue >= capacityOption[i].value) {
+        capacityOption[i].disabled = false;
+        capacityOption[capacityOption.length - 1].disabled = true;
+      }
+    }
+  }
+});
+var timesIn = document.querySelector('#timein');
+var timesOut = document.querySelector('#timeout');
+
+timesIn.addEventListener('change', function (evt) {
+  timesOut.value = evt.target.value;
+});
+timesOut.addEventListener('change', function (evt) {
+  timesIn.value = evt.target.value;
+});
+
+
