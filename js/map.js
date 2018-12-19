@@ -188,6 +188,7 @@ switchesFieldsetsValue(filtersForm, true);
 switchesFieldsetsValue(fieldsets, true);
 
 var pageActivation = function () {
+  addressInput.disabled = false;
   map.classList.remove('map--faded');
   form.classList.remove('ad-form--disabled');
   switchesFieldsetsValue(filtersForm, false);
@@ -244,7 +245,6 @@ var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
 };
 
 getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_HEIGHT);
-// 4-2
 var formTitle = form.querySelector('#title');
 formTitle.required = true;
 formTitle.maxLength = 100;
@@ -276,8 +276,8 @@ formType.addEventListener('change', function (evt) {
 var roomNumbers = form.querySelector('#room_number');
 var capacity = form.querySelector('#capacity');
 var capacityOption = capacity.querySelectorAll('option');
-capacityOption[2].selected = true;
 switchesFieldsetsValue(capacityOption, true);
+capacityOption[2].disabled = false;
 
 roomNumbers.addEventListener('change', function (evt) {
   switchesFieldsetsValue(capacityOption, true);
@@ -288,8 +288,10 @@ roomNumbers.addEventListener('change', function (evt) {
   } else {
     for (var i = 0; i < capacityOption.length; i++) {
       if (currentValue >= capacityOption[i].value) {
+        capacityOption[i].selected = true;
         capacityOption[i].disabled = false;
         capacityOption[capacityOption.length - 1].disabled = true;
+        capacityOption[capacityOption.length - 1].selected = false;
       }
     }
   }
