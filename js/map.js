@@ -276,6 +276,7 @@ formType.addEventListener('change', function (evt) {
 var roomNumbers = form.querySelector('#room_number');
 var capacity = form.querySelector('#capacity');
 var capacityOption = capacity.querySelectorAll('option');
+
 switchesFieldsetsValue(capacityOption, true);
 capacityOption[2].disabled = false;
 
@@ -288,14 +289,20 @@ roomNumbers.addEventListener('change', function (evt) {
   } else {
     for (var i = 0; i < capacityOption.length; i++) {
       if (currentValue >= capacityOption[i].value) {
-        capacityOption[i].selected = true;
         capacityOption[i].disabled = false;
         capacityOption[capacityOption.length - 1].disabled = true;
-        capacityOption[capacityOption.length - 1].selected = false;
       }
     }
   }
 });
+formTitle.addEventListener('invalid', function () {
+  if (capacity[capacity.selectedIndex].disabled) {
+    capacity.setCustomValidity('Выбрано неверное количество мест');
+  } else {
+    capacity.setCustomValidity('');
+  }
+});
+
 var timesIn = document.querySelector('#timein');
 var timesOut = document.querySelector('#timeout');
 
@@ -305,5 +312,3 @@ timesIn.addEventListener('change', function (evt) {
 timesOut.addEventListener('change', function (evt) {
   timesIn.value = evt.target.value;
 });
-
-
