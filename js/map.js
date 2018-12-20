@@ -276,7 +276,7 @@ formType.addEventListener('change', function (evt) {
 var roomNumbers = form.querySelector('#room_number');
 var capacity = form.querySelector('#capacity');
 var capacityOption = capacity.querySelectorAll('option');
-
+var submitButton = form.querySelector('.ad-form__submit');
 switchesFieldsetsValue(capacityOption, true);
 capacityOption[2].disabled = false;
 
@@ -295,7 +295,8 @@ roomNumbers.addEventListener('change', function (evt) {
     }
   }
 });
-formTitle.addEventListener('invalid', function () {
+
+submitButton.addEventListener('click', function () {
   if (capacity[capacity.selectedIndex].disabled) {
     capacity.setCustomValidity('Выбрано неверное количество мест');
   } else {
