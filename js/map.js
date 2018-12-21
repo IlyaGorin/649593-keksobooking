@@ -22,6 +22,7 @@ var fieldsets = document.querySelectorAll('fieldset');
 var form = document.querySelector('.ad-form');
 var addressInput = document.querySelector('#address');
 var filtersForm = document.querySelectorAll('.map__filter');
+
 var PIN_POINTER_HEIGHT = 22;
 var MAIN_PIN_WIDTH = mainPin.offsetWidth / 2;
 var MAIN_PIN_HEIGHT = mainPin.offsetHeight / 2;
@@ -187,6 +188,7 @@ switchesFieldsetsValue(filtersForm, true);
 switchesFieldsetsValue(fieldsets, true);
 
 var pageActivation = function () {
+  addressInput.disabled = false;
   map.classList.remove('map--faded');
   form.classList.remove('ad-form--disabled');
   switchesFieldsetsValue(filtersForm, false);
@@ -243,7 +245,6 @@ var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
 };
 
 getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_HEIGHT);
-// 4-2
 var formTitle = form.querySelector('#title');
 formTitle.required = true;
 formTitle.maxLength = 100;
@@ -270,4 +271,45 @@ var setMinPrice = function (price) {
 
 formType.addEventListener('change', function (evt) {
   setMinPrice(minPrice[evt.target.value]);
+});
+
+var roomNumbers = form.querySelector('#room_number');
+var capacity = form.querySelector('#capacity');
+var capacityOption = capacity.querySelectorAll('option');
+var submitButton = form.querySelector('.ad-form__submit');
+switchesFieldsetsValue(capacityOption, true);
+capacityOption[2].disabled = false;
+
+roomNumbers.addEventListener('change', function (evt) {
+  switchesFieldsetsValue(capacityOption, true);
+  var currentValue = evt.target.value;
+  if (currentValue === '100') {
+    capacityOption[capacityOption.length - 1].disabled = false;
+    capacityOption[capacityOption.length - 1].selected = true;
+  } else {
+    for (var i = 0; i < capacityOption.length; i++) {
+      if (currentValue >= capacityOption[i].value) {
+        capacityOption[i].disabled = false;
+        capacityOption[capacityOption.length - 1].disabled = true;
+      }
+    }
+  }
+});
+
+submitButton.addEventListener('click', function () {
+  if (capacity[capacity.selectedIndex].disabled) {
+    capacity.setCustomValidity('Выбрано неверное количество мест');
+  } else {
+    capacity.setCustomValidity('');
+  }
+});
+
+var timesIn = document.querySelector('#timein');
+var timesOut = document.querySelector('#timeout');
+
+timesIn.addEventListener('change', function (evt) {
+  timesOut.value = evt.target.value;
+});
+timesOut.addEventListener('change', function (evt) {
+  timesIn.value = evt.target.value;
 });
