@@ -23,6 +23,7 @@ var form = document.querySelector('.ad-form');
 var addressInput = document.querySelector('#address');
 var filtersForm = document.querySelectorAll('.map__filter');
 
+var ANNOUNCEMENT_PIN = 70;
 var PIN_POINTER_HEIGHT = 22;
 var MAIN_PIN_WIDTH = mainPin.offsetWidth / 2;
 var MAIN_PIN_HEIGHT = mainPin.offsetHeight / 2;
@@ -34,7 +35,6 @@ var pin = document.querySelector('#pin').content.querySelector('.map__pin');
 var pinList = document.querySelector('.map__pins');
 var card = document.querySelector('#card').content.querySelector('.map__card');
 var filtersContainer = document.querySelector('.map__filters-container');
-
 
 var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * ((max + 1) - min)) + min;
@@ -131,7 +131,7 @@ var createPinArr = function (amount) {
     pinListFragment.appendChild(pinItem);
     pinList.appendChild(pinListFragment);
     pinItem.style.left = (announcementsArr[i].location.x + PIN_WIDTH / 2) + 'px';
-    pinItem.style.top = announcementsArr[i].location.y + 'px';
+    pinItem.style.top = announcementsArr[i].location.y - ANNOUNCEMENT_PIN + 'px';
     var pinItemImage = pinItem.querySelector('img');
     pinItemImage.src = announcementsArr[i].author.avatar;
     pinItemImage.alt = announcementsArr[i].offer.title;
@@ -194,6 +194,7 @@ var pageActivation = function () {
   switchesFieldsetsValue(filtersForm, false);
   switchesFieldsetsValue(fieldsets, false);
   createPinArr(PIN_AMOUNT);
+  cardItemToggle();
   getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
 };
 
@@ -212,8 +213,7 @@ var openCard = function (id) {
   createAnnouncementCard(announcementsArr[id]);
 };
 
-var mainPinMouseupHandler = function () {
-  pageActivation();
+var cardItemToggle = function () {
   var pinsLists = pinList.querySelectorAll('.map__pin:not(.map__pin--main)');
   for (var j = 0; j < pinsLists.length; j++) {
     pinsLists[j].addEventListener('click', function (evt) {
@@ -232,10 +232,68 @@ var mainPinMouseupHandler = function () {
       });
     });
   }
-  mainPin.removeEventListener('mouseup', mainPinMouseupHandler);
 };
 
-mainPin.addEventListener('mouseup', mainPinMouseupHandler);
+mainPin.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+  pageActivation();
+  getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  var onMouseMove = function (moveEvt) {
+    pageActivation();
+    moveEvt.preventDefault();
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    var newCoords = {
+      x: mainPin.offsetLeft - shift.x,
+      y: mainPin.offsetTop - shift.y
+    };
+
+    var mapWidth = map.offsetWidth - mainPin.offsetWidth;
+    var maxPositionY = MAX_LOCATION_Y - MAIN_PIN_ACTIVE_HEIGHT;
+    var minPositionY = MIN_LOCATION_Y - MAIN_PIN_ACTIVE_HEIGHT;
+
+    if (newCoords.x > mapWidth) {
+      newCoords.x = mapWidth;
+    } else if (newCoords.x < 0) {
+      newCoords.x = 0;
+    }
+
+    if (newCoords.y < minPositionY) {
+      newCoords.y = minPositionY;
+    } else if (newCoords.y > maxPositionY) {
+      newCoords.y = maxPositionY;
+    }
+
+    mainPin.style.top = newCoords.y + 'px';
+    mainPin.style.left = newCoords.x + 'px';
+    getMainPinCoordinates(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10), MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+});
+
+// mainPin.addEventListener('mouseup', mainPinMouseupHandler);
 
 var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
   var coordinateX = String(coordX + Math.round(pinWidth));
