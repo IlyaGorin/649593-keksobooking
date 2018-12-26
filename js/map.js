@@ -15,13 +15,13 @@ var PIN_AMOUNT = 8;
 var PIN_WIDTH = 40;
 var ESC__KEYCODE = 27;
 
-
 var map = document.querySelector('.map');
 var mainPin = document.querySelector('.map__pin--main');
 var fieldsets = document.querySelectorAll('fieldset');
 var form = document.querySelector('.ad-form');
 var addressInput = document.querySelector('#address');
 var filtersForm = document.querySelectorAll('.map__filter');
+var isActive = false;
 
 var ANNOUNCEMENT_PIN = 70;
 var PIN_POINTER_HEIGHT = 22;
@@ -195,8 +195,9 @@ var pageActivation = function () {
   switchesFieldsetsValue(fieldsets, false);
   createPinArr(PIN_AMOUNT);
   cardItemToggle();
-  getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
+  isActive = true;
 };
+
 
 var closeCard = function () {
   var mapCard = document.querySelector('.map__card');
@@ -233,10 +234,8 @@ var cardItemToggle = function () {
     });
   }
 };
-
 mainPin.addEventListener('mousedown', function (evt) {
   evt.preventDefault();
-  pageActivation();
   getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
   var startCoords = {
     x: evt.clientX,
@@ -244,9 +243,7 @@ mainPin.addEventListener('mousedown', function (evt) {
   };
 
   var onMouseMove = function (moveEvt) {
-    pageActivation();
     moveEvt.preventDefault();
-
     var shift = {
       x: startCoords.x - moveEvt.clientX,
       y: startCoords.y - moveEvt.clientY
@@ -285,12 +282,18 @@ mainPin.addEventListener('mousedown', function (evt) {
 
   var onMouseUp = function (upEvt) {
     upEvt.preventDefault();
+
+    if (!isActive) {
+      pageActivation();
+    }
+
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
   };
 
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
+
 });
 
 // mainPin.addEventListener('mouseup', mainPinMouseupHandler);
@@ -331,6 +334,7 @@ formType.addEventListener('change', function (evt) {
   setMinPrice(minPrice[evt.target.value]);
 });
 
+
 var roomNumbers = form.querySelector('#room_number');
 var capacity = form.querySelector('#capacity');
 var capacityOption = capacity.querySelectorAll('option');
@@ -354,14 +358,6 @@ roomNumbers.addEventListener('change', function (evt) {
   }
 });
 
-submitButton.addEventListener('click', function () {
-  if (capacity[capacity.selectedIndex].disabled) {
-    capacity.setCustomValidity('Выбрано неверное количество мест');
-  } else {
-    capacity.setCustomValidity('');
-  }
-});
-
 var timesIn = document.querySelector('#timein');
 var timesOut = document.querySelector('#timeout');
 
@@ -371,3 +367,53 @@ timesIn.addEventListener('change', function (evt) {
 timesOut.addEventListener('change', function (evt) {
   timesIn.value = evt.target.value;
 });
+
+var formInput = form.querySelectorAll('input');
+var resetButton = form.querySelector('.ad-form__reset');
+
+var resetButtonClickHandler = function () {
+  form.reset();
+  map.classList.add('map--faded');
+  form.classList.add('ad-form--disabled');
+
+  var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+  for (var i = 0; i < pins.length; i++) {
+    pins[i].remove();
+  }
+
+  closeCard();
+
+  for (var j = 0; j < formInput.length; j++) {
+    formInput[j].style.boxShadow = '';
+  }
+
+  capacity.style.boxShadow = '';
+
+  switchesFieldsetsValue(filtersForm, true);
+  switchesFieldsetsValue(fieldsets, true);
+  mainPin.style.top = MAIN_PIN_COORDINATE_Y + 'px';
+  mainPin.style.left = MAIN_PIN_COORDINATE_X + 'px';
+  getMainPinCoordinates(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10), MAIN_PIN_WIDTH, MAIN_PIN_HEIGHT);
+  isActive = false;
+};
+
+resetButton.addEventListener('click', resetButtonClickHandler);
+
+var submitButtonClickHandler = function () {
+  if (capacity[capacity.selectedIndex].disabled) {
+    capacity.setCustomValidity('Выбрано неверное количество мест');
+    capacity.style.boxShadow = '0 0 3px 3px red';
+  } else {
+    capacity.setCustomValidity('');
+    capacity.style.boxShadow = '';
+  }
+  for (var i = 0; i < formInput.length; i++) {
+    if (!formInput[i].checkValidity()) {
+      formInput[i].style.boxShadow = '0 0 3px 3px red';
+    } else {
+      formInput[i].style.boxShadow = '';
+    }
+  }
+};
+
+submitButton.addEventListener('click', submitButtonClickHandler);
