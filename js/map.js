@@ -124,22 +124,38 @@ var getRandomObj = function (amount) {
 
 var announcementsArr = getRandomObj(ANNOUNCEMENT_AMOUNT);
 
-var createPinArr = function (amount) {
+var drowPins = function (amount) {
   for (var i = 0; i < amount; i++) {
     var pinItem = pin.cloneNode(true);
     var pinListFragment = document.createDocumentFragment();
-    pinListFragment.appendChild(pinItem);
-    pinList.appendChild(pinListFragment);
     pinItem.style.left = (announcementsArr[i].location.x + PIN_WIDTH / 2) + 'px';
     pinItem.style.top = announcementsArr[i].location.y - ANNOUNCEMENT_PIN + 'px';
     var pinItemImage = pinItem.querySelector('img');
     pinItemImage.src = announcementsArr[i].author.avatar;
     pinItemImage.alt = announcementsArr[i].offer.title;
     pinItem.dataset.id = i;
+    pinItem.addEventListener('click', function (evt) {
+      var button = evt.currentTarget;
+      var pinId = button.dataset.id;
+      closeCard();
+      openCard(pinId);
+      var closeButton = document.querySelector('.popup__close');
+      closeButton.addEventListener('click', function () {
+        closeCard();
+      });
+      window.addEventListener('keydown', function (keydownEvt) {
+        if (keydownEvt.keyCode === ESC__KEYCODE) {
+          closeCard();
+        }
+      });
+    });
+    pinListFragment.appendChild(pinItem);
+    pinList.appendChild(pinListFragment);
   }
+
 };
 
-var createAnnouncementCard = function (obj) {
+var drowAnnouncementCard = function (obj) {
   var cardItem = card.cloneNode(true);
   cardItem.querySelector('.popup__title').textContent = obj.offer.title;
   cardItem.querySelector('.popup__text--address').textContent = obj.offer.address;
@@ -193,8 +209,7 @@ var pageActivation = function () {
   form.classList.remove('ad-form--disabled');
   switchesFieldsetsValue(filtersForm, false);
   switchesFieldsetsValue(fieldsets, false);
-  createPinArr(PIN_AMOUNT);
-  cardItemToggle();
+  drowPins(PIN_AMOUNT);
   isActive = true;
 };
 
@@ -211,29 +226,9 @@ var openCard = function (id) {
   if (mapCard) {
     closeCard();
   }
-  createAnnouncementCard(announcementsArr[id]);
+  drowAnnouncementCard(announcementsArr[id]);
 };
 
-var cardItemToggle = function () {
-  var pinsLists = pinList.querySelectorAll('.map__pin:not(.map__pin--main)');
-  for (var j = 0; j < pinsLists.length; j++) {
-    pinsLists[j].addEventListener('click', function (evt) {
-      var button = evt.currentTarget;
-      var pinId = button.dataset.id;
-      closeCard();
-      openCard(pinId);
-      var closeButton = document.querySelector('.popup__close');
-      closeButton.addEventListener('click', function () {
-        closeCard();
-      });
-      window.addEventListener('keydown', function (keydownEvt) {
-        if (keydownEvt.keyCode === ESC__KEYCODE) {
-          closeCard();
-        }
-      });
-    });
-  }
-};
 mainPin.addEventListener('mousedown', function (evt) {
   evt.preventDefault();
   getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
@@ -265,13 +260,14 @@ mainPin.addEventListener('mousedown', function (evt) {
 
     if (newCoords.x > mapWidth) {
       newCoords.x = mapWidth;
-    } else if (newCoords.x < 0) {
+    }
+    if (newCoords.x < 0) {
       newCoords.x = 0;
     }
-
     if (newCoords.y < minPositionY) {
       newCoords.y = minPositionY;
-    } else if (newCoords.y > maxPositionY) {
+    }
+    if (newCoords.y > maxPositionY) {
       newCoords.y = maxPositionY;
     }
 
@@ -400,18 +396,17 @@ var resetButtonClickHandler = function () {
 resetButton.addEventListener('click', resetButtonClickHandler);
 
 var submitButtonClickHandler = function () {
+  capacity.setCustomValidity('');
+  capacity.style.boxShadow = '';
   if (capacity[capacity.selectedIndex].disabled) {
     capacity.setCustomValidity('Выбрано неверное количество мест');
     capacity.style.boxShadow = '0 0 3px 3px red';
-  } else {
-    capacity.setCustomValidity('');
-    capacity.style.boxShadow = '';
   }
+
   for (var i = 0; i < formInput.length; i++) {
+    formInput[i].style.boxShadow = '';
     if (!formInput[i].checkValidity()) {
       formInput[i].style.boxShadow = '0 0 3px 3px red';
-    } else {
-      formInput[i].style.boxShadow = '';
     }
   }
 };
