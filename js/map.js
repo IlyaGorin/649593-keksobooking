@@ -15,14 +15,15 @@ var PIN_AMOUNT = 8;
 var PIN_WIDTH = 40;
 var ESC__KEYCODE = 27;
 
-
 var map = document.querySelector('.map');
 var mainPin = document.querySelector('.map__pin--main');
 var fieldsets = document.querySelectorAll('fieldset');
 var form = document.querySelector('.ad-form');
 var addressInput = document.querySelector('#address');
 var filtersForm = document.querySelectorAll('.map__filter');
+var isActive = false;
 
+var ANNOUNCEMENT_PIN = 70;
 var PIN_POINTER_HEIGHT = 22;
 var MAIN_PIN_WIDTH = mainPin.offsetWidth / 2;
 var MAIN_PIN_HEIGHT = mainPin.offsetHeight / 2;
@@ -34,7 +35,6 @@ var pin = document.querySelector('#pin').content.querySelector('.map__pin');
 var pinList = document.querySelector('.map__pins');
 var card = document.querySelector('#card').content.querySelector('.map__card');
 var filtersContainer = document.querySelector('.map__filters-container');
-
 
 var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * ((max + 1) - min)) + min;
@@ -124,22 +124,37 @@ var getRandomObj = function (amount) {
 
 var announcementsArr = getRandomObj(ANNOUNCEMENT_AMOUNT);
 
-var createPinArr = function (amount) {
+var renderPins = function (amount) {
+  var pinListFragment = document.createDocumentFragment();
   for (var i = 0; i < amount; i++) {
     var pinItem = pin.cloneNode(true);
-    var pinListFragment = document.createDocumentFragment();
-    pinListFragment.appendChild(pinItem);
-    pinList.appendChild(pinListFragment);
     pinItem.style.left = (announcementsArr[i].location.x + PIN_WIDTH / 2) + 'px';
-    pinItem.style.top = announcementsArr[i].location.y + 'px';
+    pinItem.style.top = announcementsArr[i].location.y - ANNOUNCEMENT_PIN + 'px';
     var pinItemImage = pinItem.querySelector('img');
     pinItemImage.src = announcementsArr[i].author.avatar;
     pinItemImage.alt = announcementsArr[i].offer.title;
     pinItem.dataset.id = i;
+    pinItem.addEventListener('click', function (evt) {
+      var button = evt.currentTarget;
+      var pinId = button.dataset.id;
+      closeCard();
+      openCard(pinId);
+      var closeButton = document.querySelector('.popup__close');
+      closeButton.addEventListener('click', function () {
+        closeCard();
+      });
+      window.addEventListener('keydown', function (keydownEvt) {
+        if (keydownEvt.keyCode === ESC__KEYCODE) {
+          closeCard();
+        }
+      });
+    });
+    pinListFragment.appendChild(pinItem);
   }
+  pinList.appendChild(pinListFragment);
 };
 
-var createAnnouncementCard = function (obj) {
+var renderAnnoucementCard = function (obj) {
   var cardItem = card.cloneNode(true);
   cardItem.querySelector('.popup__title').textContent = obj.offer.title;
   cardItem.querySelector('.popup__text--address').textContent = obj.offer.address;
@@ -193,9 +208,10 @@ var pageActivation = function () {
   form.classList.remove('ad-form--disabled');
   switchesFieldsetsValue(filtersForm, false);
   switchesFieldsetsValue(fieldsets, false);
-  createPinArr(PIN_AMOUNT);
-  getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
+  renderPins(PIN_AMOUNT);
+  isActive = true;
 };
+
 
 var closeCard = function () {
   var mapCard = document.querySelector('.map__card');
@@ -209,33 +225,73 @@ var openCard = function (id) {
   if (mapCard) {
     closeCard();
   }
-  createAnnouncementCard(announcementsArr[id]);
+  renderAnnoucementCard(announcementsArr[id]);
 };
 
-var mainPinMouseupHandler = function () {
-  pageActivation();
-  var pinsLists = pinList.querySelectorAll('.map__pin:not(.map__pin--main)');
-  for (var j = 0; j < pinsLists.length; j++) {
-    pinsLists[j].addEventListener('click', function (evt) {
-      var button = evt.currentTarget;
-      var pinId = button.dataset.id;
-      closeCard();
-      openCard(pinId);
-      var closeButton = document.querySelector('.popup__close');
-      closeButton.addEventListener('click', function () {
-        closeCard();
-      });
-      window.addEventListener('keydown', function (keydownEvt) {
-        if (keydownEvt.keyCode === ESC__KEYCODE) {
-          closeCard();
-        }
-      });
-    });
-  }
-  mainPin.removeEventListener('mouseup', mainPinMouseupHandler);
-};
+mainPin.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+  getMainPinCoordinates(MAIN_PIN_COORDINATE_X, MAIN_PIN_COORDINATE_Y, MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
 
-mainPin.addEventListener('mouseup', mainPinMouseupHandler);
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    var newCoords = {
+      x: mainPin.offsetLeft - shift.x,
+      y: mainPin.offsetTop - shift.y
+    };
+
+    var mapWidth = map.offsetWidth - mainPin.offsetWidth;
+    var maxPositionY = MAX_LOCATION_Y - MAIN_PIN_ACTIVE_HEIGHT;
+    var minPositionY = MIN_LOCATION_Y - MAIN_PIN_ACTIVE_HEIGHT;
+
+    if (newCoords.x > mapWidth) {
+      newCoords.x = mapWidth;
+    }
+    if (newCoords.x < 0) {
+      newCoords.x = 0;
+    }
+    if (newCoords.y < minPositionY) {
+      newCoords.y = minPositionY;
+    }
+    if (newCoords.y > maxPositionY) {
+      newCoords.y = maxPositionY;
+    }
+
+    mainPin.style.top = newCoords.y + 'px';
+    mainPin.style.left = newCoords.x + 'px';
+    getMainPinCoordinates(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10), MAIN_PIN_WIDTH, MAIN_PIN_ACTIVE_HEIGHT);
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    if (!isActive) {
+      pageActivation();
+    }
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+
+});
+
+// mainPin.addEventListener('mouseup', mainPinMouseupHandler);
 
 var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
   var coordinateX = String(coordX + Math.round(pinWidth));
@@ -273,6 +329,7 @@ formType.addEventListener('change', function (evt) {
   setMinPrice(minPrice[evt.target.value]);
 });
 
+
 var roomNumbers = form.querySelector('#room_number');
 var capacity = form.querySelector('#capacity');
 var capacityOption = capacity.querySelectorAll('option');
@@ -296,14 +353,6 @@ roomNumbers.addEventListener('change', function (evt) {
   }
 });
 
-submitButton.addEventListener('click', function () {
-  if (capacity[capacity.selectedIndex].disabled) {
-    capacity.setCustomValidity('Выбрано неверное количество мест');
-  } else {
-    capacity.setCustomValidity('');
-  }
-});
-
 var timesIn = document.querySelector('#timein');
 var timesOut = document.querySelector('#timeout');
 
@@ -313,3 +362,52 @@ timesIn.addEventListener('change', function (evt) {
 timesOut.addEventListener('change', function (evt) {
   timesIn.value = evt.target.value;
 });
+
+var formInput = form.querySelectorAll('input');
+var resetButton = form.querySelector('.ad-form__reset');
+
+var resetButtonClickHandler = function () {
+  form.reset();
+  map.classList.add('map--faded');
+  form.classList.add('ad-form--disabled');
+
+  var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
+  for (var i = 0; i < pins.length; i++) {
+    pins[i].remove();
+  }
+
+  closeCard();
+
+  for (var j = 0; j < formInput.length; j++) {
+    formInput[j].style.boxShadow = '';
+  }
+
+  capacity.style.boxShadow = '';
+
+  switchesFieldsetsValue(filtersForm, true);
+  switchesFieldsetsValue(fieldsets, true);
+  mainPin.style.top = MAIN_PIN_COORDINATE_Y + 'px';
+  mainPin.style.left = MAIN_PIN_COORDINATE_X + 'px';
+  getMainPinCoordinates(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10), MAIN_PIN_WIDTH, MAIN_PIN_HEIGHT);
+  isActive = false;
+};
+
+resetButton.addEventListener('click', resetButtonClickHandler);
+
+var submitButtonClickHandler = function () {
+  capacity.setCustomValidity('');
+  capacity.style.boxShadow = '';
+  if (capacity[capacity.selectedIndex].disabled) {
+    capacity.setCustomValidity('Выбрано неверное количество мест');
+    capacity.style.boxShadow = '0 0 3px 3px red';
+  }
+
+  for (var i = 0; i < formInput.length; i++) {
+    formInput[i].style.boxShadow = '';
+    if (!formInput[i].checkValidity()) {
+      formInput[i].style.boxShadow = '0 0 3px 3px red';
+    }
+  }
+};
+
+submitButton.addEventListener('click', submitButtonClickHandler);
