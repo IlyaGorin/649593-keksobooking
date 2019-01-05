@@ -1,47 +1,37 @@
 'use strict';
 (function () {
-  var ANNOUNCEMENT_AMOUNT = 8;
-  var PIN_AMOUNT = 8;
-
   var map = document.querySelector('.map');
-  var announcementsArr = window.data.getRandomObj(ANNOUNCEMENT_AMOUNT);
+  var addressInput = document.querySelector('#address');
+  var switchesFieldsetsValue = window.util.switchesFieldsetsValue;
+  var mainPin = window.data.mainPin;
+  var mainPinActiveHeight = window.data.mainPinActiveHeight;
+  var mainPinWidth = window.data.mainPinWidth;
+  var pinCoordX = window.data.pinCoordX
+  var pinCoordY = window.data.pinCoordY
+  var mainPinHeight = window.data.mainPinHeight
 
   var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
     var coordinateX = String(coordX + Math.round(pinWidth));
     var coordinateY = String(coodrY + Math.round(pinHeight));
-    window.form.addressInput.value = coordinateX + ' , ' + coordinateY;
-    return window.form.addressInput;
+    addressInput.value = coordinateX + ' , ' + coordinateY;
+    return addressInput;
   };
 
   var pageActivation = function () {
-    window.form.addressInput.disabled = false;
+    addressInput.disabled = false;
     map.classList.remove('map--faded');
-    window.form.form.classList.remove('ad-form--disabled');
-    window.util.switchesFieldsetsValue(window.form.filtersForm, false);
-    window.util.switchesFieldsetsValue(window.form.fieldsets, false);
-    window.renderPins(PIN_AMOUNT);
+    window.form.container.classList.remove('ad-form--disabled');
+    switchesFieldsetsValue(window.form.filtersForm, false);
+    switchesFieldsetsValue(window.form.fieldsets, false);
+    window.backend.load(function (arr) {
+      window.pin.render(arr);
+    });
     window.data.isActive = true;
   };
 
-
-  var closeCard = function () {
-    var mapCard = document.querySelector('.map__card');
-    if (mapCard) {
-      mapCard.remove();
-    }
-  };
-
-  var openCard = function (id) {
-    var mapCard = document.querySelector('.map__card');
-    if (mapCard) {
-      closeCard();
-    }
-    window.renderAnnoucementCard(announcementsArr[id]);
-  };
-
-  window.data.mainPin.addEventListener('mousedown', function (evt) {
+  mainPin.addEventListener('mousedown', function (evt) {
     evt.preventDefault();
-    getMainPinCoordinates(parseInt(window.data.mainPin.style.left, 10), parseInt(window.data.mainPin.style.top, 10), window.data.mainPinWidth, window.data.mainPinActiveHeight);
+    getMainPinCoordinates(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10), mainPinWidth, mainPinActiveHeight);
     var startCoords = {
       x: evt.clientX,
       y: evt.clientY
@@ -60,13 +50,13 @@
       };
 
       var newCoords = {
-        x: window.data.mainPin.offsetLeft - shift.x,
-        y: window.data.mainPin.offsetTop - shift.y
+        x: mainPin.offsetLeft - shift.x,
+        y: mainPin.offsetTop - shift.y
       };
 
-      var mapWidth = map.offsetWidth - window.data.mainPin.offsetWidth;
-      var maxPositionY = window.data.maxLocationY - window.data.mainPinActiveHeight;
-      var minPositionY = window.data.minLocationY - window.data.mainPinActiveHeight;
+      var mapWidth = map.offsetWidth - mainPin.offsetWidth;
+      var maxPositionY = window.data.maxLocationY - mainPinActiveHeight;
+      var minPositionY = window.data.minLocationY - mainPinActiveHeight;
 
       if (newCoords.x > mapWidth) {
         newCoords.x = mapWidth;
@@ -81,9 +71,9 @@
         newCoords.y = maxPositionY;
       }
 
-      window.data.mainPin.style.top = newCoords.y + 'px';
-      window.data.mainPin.style.left = newCoords.x + 'px';
-      getMainPinCoordinates(parseInt(window.data.mainPin.style.left, 10), parseInt(window.data.mainPin.style.top, 10), window.data.mainPinWidth, window.data.mainPinActiveHeight);
+      mainPin.style.top = newCoords.y + 'px';
+      mainPin.style.left = newCoords.x + 'px';
+      getMainPinCoordinates(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10), mainPinWidth, mainPinActiveHeight);
     };
 
     var onMouseUp = function (upEvt) {
@@ -102,13 +92,10 @@
 
   });
 
-  getMainPinCoordinates(window.data.pinCoordX, window.data.pinCoordY, window.data.mainPinWidth, window.data.mainPinHeight);
+  getMainPinCoordinates(pinCoordX, pinCoordY, mainPinWidth, mainPinHeight);
 
   window.map = {
-    map: map,
-    announcementsArr: announcementsArr,
-    closeCard: closeCard,
-    openCard: openCard,
-    getMainPinCoordinates: getMainPinCoordinates
+    field: map,
+    addressInput: addressInput
   };
 })();
