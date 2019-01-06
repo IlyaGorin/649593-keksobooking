@@ -19,7 +19,7 @@
     if (mapCard) {
       closeCard();
     }
-    window.backend.load(function(arr){
+    window.backend.load(function (arr) {
       window.renderAnnoucementCard(arr[id]);
     });
   };

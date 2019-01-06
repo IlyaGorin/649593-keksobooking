@@ -11,7 +11,7 @@
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
-      if (xhr.status == 200) {
+      if (xhr.status === 200) {
         onLoad(xhr.response);
       } else {
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
@@ -27,8 +27,13 @@
 
     xhr.timeout = TIMEOUT;
     xhr.open(method, url);
-    data ? xhr.send(data) : xhr.send();
-  }
+
+    if (data) {
+      xhr.send(data);
+    } else {
+      xhr.send();
+    }
+  };
 
   var load = function (onLoad, onError) {
     xhrSend(onLoad, onError, LOAD_URL, 'GET');
@@ -50,13 +55,12 @@
     errorButton.addEventListener('click', errorClose);
     document.addEventListener('click', errorClose);
     document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === data.esc) {
+      if (evt.keyCode === window.data.esc) {
         errorClose();
       }
     });
     errorMessage.textContent = message;
     main.insertAdjacentElement('afterbegin', errorElement);
-    console.log(123);
   };
 
 
@@ -64,5 +68,5 @@
     upload: upload,
     load: load,
     onError: onError
-  }
+  };
 })();

@@ -6,9 +6,9 @@
   var mainPin = window.data.mainPin;
   var mainPinActiveHeight = window.data.mainPinActiveHeight;
   var mainPinWidth = window.data.mainPinWidth;
-  var pinCoordX = window.data.pinCoordX
-  var pinCoordY = window.data.pinCoordY
-  var mainPinHeight = window.data.mainPinHeight
+  var pinCoordX = window.data.pinCoordX;
+  var pinCoordY = window.data.pinCoordY;
+  var mainPinHeight = window.data.mainPinHeight;
 
   var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
     var coordinateX = String(coordX + Math.round(pinWidth));

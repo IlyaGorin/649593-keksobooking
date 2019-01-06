@@ -127,12 +127,12 @@
     };
     document.addEventListener('click', closeMessage);
     document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === data.esc) {
+      if (evt.keyCode === window.data.esc) {
         closeMessage();
       }
     });
     main.insertAdjacentElement('afterbegin', successElement);
-  }
+  };
 
   var submitButtonClickHandler = function () {
     // evt.preventDefault();
@@ -154,7 +154,7 @@
   submitButton.addEventListener('click', submitButtonClickHandler);
   form.addEventListener('submit', function (evt) {
     evt.preventDefault();
-    window.backend.upload(new FormData(form), onLoad, window.backend.onError)
+    window.backend.upload(new FormData(form), onLoad, window.backend.onError);
   });
 
 
