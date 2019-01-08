@@ -7,7 +7,7 @@
 
   var renderPins = function (arr) {
     var pinListFragment = document.createDocumentFragment();
-    for (var i = 0; i < arr.length; i++) {
+    for (var i = 0; i < arr.length && i < 5; i++) {
       var pinItem = pin.cloneNode(true);
       pinItem.style.left = (arr[i].location.x - window.data.pinWidth / 2) + 'px';
       pinItem.style.top = arr[i].location.y - window.data.announcementPin + 'px';

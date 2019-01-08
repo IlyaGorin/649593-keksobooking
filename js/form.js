@@ -75,7 +75,6 @@
       }
     }
   });
-
   var timesIn = document.querySelector('#timein');
   var timesOut = document.querySelector('#timeout');
 

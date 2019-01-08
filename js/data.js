@@ -14,6 +14,7 @@
   var MAIN_PIN_COORDINATE_X = parseInt(mainPin.style.left, 10);
   var MAIN_PIN_COORDINATE_Y = parseInt(mainPin.style.top, 10);
   var isActive = false;
+  var dataArr = [];
 
   window.data = {
     maxLocationY: MAX_LOCATION_Y,
@@ -28,6 +29,7 @@
     esc: ESC__KEYCODE,
     mainPin: mainPin,
     isActive: isActive,
+    arr: dataArr,
     types: {
       palace: 'Дворец',
       flat: 'Квартира',

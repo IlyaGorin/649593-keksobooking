@@ -23,9 +23,11 @@
     window.form.container.classList.remove('ad-form--disabled');
     switchesFieldsetsValue(window.form.filtersForm, false);
     switchesFieldsetsValue(window.form.fieldsets, false);
-    window.backend.load(function (arr) {
+    var onLoadSuccess = function (arr) {
+      window.data.arr = arr;
       window.pin.render(arr);
-    });
+    };
+    window.backend.load(onLoadSuccess, window.backend.onError);
     window.data.isActive = true;
   };
 
