@@ -5,13 +5,15 @@
   var LOAD_URL = 'https://js.dump.academy/keksobooking/data';
   var UPLOAD_URL = 'https://js.dump.academy/keksobooking';
   var TIMEOUT = 10000;
+  var STATUS_OK = 200;
+  var escButton = window.data.keyCodes.esc;
 
   var xhrSend = function (onLoad, onError, url, method, data) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
-      if (xhr.status === 200) {
+      if (xhr.status === STATUS_OK) {
         onLoad(xhr.response);
       } else {
         onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
@@ -28,11 +30,8 @@
     xhr.timeout = TIMEOUT;
     xhr.open(method, url);
 
-    if (data) {
-      xhr.send(data);
-    } else {
-      xhr.send();
-    }
+    xhr.send(data);
+
   };
 
   var load = function (onLoad, onError) {
@@ -55,7 +54,7 @@
     errorButton.addEventListener('click', errorClose);
     document.addEventListener('click', errorClose);
     document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === window.data.esc) {
+      if (evt.keyCode === escButton) {
         errorClose();
       }
     });

@@ -8,22 +8,21 @@
   var housingRooms = mapFilters.querySelector('#housing-rooms');
   var housingGuests = mapFilters.querySelector('#housing-guests');
   var housingFeatures = mapFilters.querySelector('#housing-features');
-  var DEBOUNCE_INTERVAL = 500;
-
-  var lastTimeout;
-  var debounce = function (cb) {
-    if (lastTimeout) {
-      window.clearTimeout(lastTimeout);
-    }
-    lastTimeout = window.setTimeout(cb, DEBOUNCE_INTERVAL);
+  var closeCard = window.card.close;
+  var debounce = window.util.debounce;
+  var renderPin = window.pin.render;
+  var priceMap = {
+    min: 10000,
+    max: 50000
   };
+
 
   var updatePins = function () {
     var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
     pins.forEach(function (pinElement) {
       pinElement.remove();
     });
-    window.util.closeCard();
+    closeCard();
 
     var filter = function (el) {
       var typeRes = true;
@@ -46,12 +45,16 @@
       }
 
       if (housingPrice.options[housingPrice.selectedIndex].value !== 'any') {
-        if (housingPrice.options[housingPrice.selectedIndex].value === 'middle') {
-          priceRes = (el.offer.price > 10000 && el.offer.price < 50000);
-        } else if (housingPrice.options[housingPrice.selectedIndex].value === 'low') {
-          priceRes = el.offer.price < 10000;
-        } else if (housingPrice.options[housingPrice.selectedIndex].value === 'high') {
-          priceRes = el.offer.price > 50000;
+        switch (housingPrice.options[housingPrice.selectedIndex].value) {
+          case 'middle':
+            priceRes = (el.offer.price > priceMap.min && el.offer.price < priceMap.max);
+            break;
+          case 'low':
+            priceRes = el.offer.price < priceMap.min;
+            break;
+          case 'high':
+            priceRes = el.offer.price > priceMap.max;
+            break;
         }
       }
 
@@ -64,7 +67,8 @@
       return typeRes && priceRes && roomsRes && guestsRes && featuresRes;
     };
     var filteredArr = window.data.arr.filter(filter);
-    window.pin.render(filteredArr);
+
+    renderPin(filteredArr);
   };
 
 

@@ -1,20 +1,14 @@
 'use strict';
 
 (function () {
+  var SELECT_OPTION_NUMBER = 2;
+  var SELECT_OPTION_VALUE = '100';
   var form = document.querySelector('.ad-form');
   var filtersForm = document.querySelectorAll('.map__filter');
   var fieldsets = document.querySelectorAll('fieldset');
-
-  var formTitle = form.querySelector('#title');
-  formTitle.required = true;
-  formTitle.maxLength = 100;
-  formTitle.minLength = 30;
-
   var formPrice = form.querySelector('#price');
-  formPrice.required = true;
-  formPrice.max = 1000000;
-
   var formType = form.querySelector('#type');
+  var escButton = window.data.keyCodes.esc;
 
   var minPrice = {
     bungalo: 0,
@@ -34,7 +28,7 @@
   var pinCoordX = window.data.pinCoordX;
   var mainPinWidth = window.data.mainPinWidth;
   var mainPinHeight = window.data.mainPinHeight;
-  var closeCard = window.util.closeCard;
+  var closeCard = window.card.close;
   var addressInput = window.map.addressInput;
 
   var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
@@ -58,12 +52,12 @@
   var capacityOption = capacity.querySelectorAll('option');
   var submitButton = form.querySelector('.ad-form__submit');
   switchesFieldsetsValue(capacityOption, true);
-  capacityOption[2].disabled = false;
+  capacityOption[SELECT_OPTION_NUMBER].disabled = false;
 
   roomNumbers.addEventListener('change', function (evt) {
     switchesFieldsetsValue(capacityOption, true);
     var currentValue = evt.target.value;
-    if (currentValue === '100') {
+    if (currentValue === SELECT_OPTION_VALUE) {
       capacityOption[capacityOption.length - 1].disabled = false;
       capacityOption[capacityOption.length - 1].selected = true;
     } else {
@@ -126,7 +120,7 @@
     };
     document.addEventListener('click', closeMessage);
     document.addEventListener('keydown', function (evt) {
-      if (evt.keyCode === window.data.esc) {
+      if (evt.keyCode === escButton) {
         closeMessage();
       }
     });
@@ -134,7 +128,6 @@
   };
 
   var submitButtonClickHandler = function () {
-    // evt.preventDefault();
     capacity.setCustomValidity('');
     capacity.style.boxShadow = '';
     if (capacity[capacity.selectedIndex].disabled) {

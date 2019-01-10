@@ -9,6 +9,8 @@
   var pinCoordX = window.data.pinCoordX;
   var pinCoordY = window.data.pinCoordY;
   var mainPinHeight = window.data.mainPinHeight;
+  var enterButton = window.data.keyCodes.enter;
+  var load = window.backend.load;
 
   var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
     var coordinateX = String(coordX + Math.round(pinWidth));
@@ -27,7 +29,7 @@
       window.data.arr = arr;
       window.pin.render(arr);
     };
-    window.backend.load(onLoadSuccess, window.backend.onError);
+    load(onLoadSuccess, window.backend.onError);
     window.data.isActive = true;
   };
 
@@ -93,6 +95,16 @@
     document.addEventListener('mouseup', onMouseUp);
 
   });
+
+  var enterButtonHandler = function (evt) {
+    if (evt.keyCode === enterButton) {
+      if (!window.data.isActive) {
+        pageActivation();
+      }
+    }
+  };
+
+  mainPin.addEventListener('keydown', enterButtonHandler);
 
   getMainPinCoordinates(pinCoordX, pinCoordY, mainPinWidth, mainPinHeight);
 

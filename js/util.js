@@ -1,32 +1,24 @@
 'use strict';
 
 (function () {
+  var DEBOUNCE_INTERVAL = 500;
+
   var switchesFieldsetsValue = function (arr, value) {
     for (var i = 0; i < arr.length; i++) {
       arr[i].disabled = value;
     }
   };
 
-  var closeCard = function () {
-    var mapCard = document.querySelector('.map__card');
-    if (mapCard) {
-      mapCard.remove();
+  var lastTimeout;
+  var debounce = function (cb) {
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
     }
-  };
-
-  var openCard = function (id) {
-    var mapCard = document.querySelector('.map__card');
-    if (mapCard) {
-      closeCard();
-    }
-    window.backend.load(function (arr) {
-      window.renderAnnoucementCard(arr[id]);
-    });
+    lastTimeout = window.setTimeout(cb, DEBOUNCE_INTERVAL);
   };
 
   window.util = {
     switchesFieldsetsValue: switchesFieldsetsValue,
-    closeCard: closeCard,
-    openCard: openCard
+    debounce: debounce,
   };
 })();
