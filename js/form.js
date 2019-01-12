@@ -86,12 +86,11 @@
     window.map.field.classList.add('map--faded');
     form.classList.add('ad-form--disabled');
 
+    closeCard();
     var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
     for (var i = 0; i < pins.length; i++) {
       pins[i].remove();
     }
-
-    closeCard();
 
     for (var j = 0; j < formInput.length; j++) {
       formInput[j].style.boxShadow = '';
