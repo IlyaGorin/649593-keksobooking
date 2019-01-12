@@ -1,48 +1,47 @@
 'use strict';
 
 (function () {
+  var loadURL = window.data.AddressURL.LOAD;
+  var uploadURL = window.data.AddressURL.UPLOAD;
+  var timeout = window.data.timeout;
+  var statusOk = window.data.StatusCodes.OK;
+  var escButton = window.data.KeyCodes.ESC;
 
-  var LOAD_URL = 'https://js.dump.academy/keksobooking/data';
-  var UPLOAD_URL = 'https://js.dump.academy/keksobooking';
-  var TIMEOUT = 10000;
-  var STATUS_OK = 200;
-  var escButton = window.data.keyCodes.esc;
-
-  var xhrSend = function (onLoad, onError, url, method, data) {
+  var xhrSend = function (loadHandler, errorHandler, url, method, data) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
-      if (xhr.status === STATUS_OK) {
-        onLoad(xhr.response);
+      if (xhr.status === statusOk) {
+        loadHandler(xhr.response);
       } else {
-        onError('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
+        errorHandler('Статус ответа: ' + xhr.status + ' ' + xhr.statusText);
       }
     });
 
     xhr.addEventListener('error', function () {
-      onError('Произошла ошибка соединения');
+      errorHandler('Произошла ошибка соединения');
     });
     xhr.addEventListener('timeout', function () {
-      onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
+      errorHandler('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
-    xhr.timeout = TIMEOUT;
+    xhr.timeout = timeout;
     xhr.open(method, url);
 
     xhr.send(data);
 
   };
 
-  var load = function (onLoad, onError) {
-    xhrSend(onLoad, onError, LOAD_URL, 'GET');
+  var load = function (loadHandler, errorHandler) {
+    xhrSend(loadHandler, errorHandler, loadURL, 'GET');
   };
 
-  var upload = function (formData, onLoad, onError) {
-    xhrSend(onLoad, onError, UPLOAD_URL, 'POST', formData);
+  var upload = function (formData, loadHandler, errorHandler) {
+    xhrSend(loadHandler, errorHandler, uploadURL, 'POST', formData);
   };
 
-  var onError = function (message) {
+  var errorHandler = function (message) {
     var main = document.querySelector('main');
     var errorTemplate = document.querySelector('#error').content.querySelector('.error');
     var errorElement = errorTemplate.cloneNode(true);
@@ -66,6 +65,6 @@
   window.backend = {
     upload: upload,
     load: load,
-    onError: onError
+    errorHandler: errorHandler
   };
 })();

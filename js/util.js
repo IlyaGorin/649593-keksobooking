@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var DEBOUNCE_INTERVAL = 500;
+  var debounceInterval = window.data.debounceInterval;
 
   var switchesFieldsetsValue = function (arr, value) {
     for (var i = 0; i < arr.length; i++) {
@@ -14,7 +14,7 @@
     if (lastTimeout) {
       window.clearTimeout(lastTimeout);
     }
-    lastTimeout = window.setTimeout(cb, DEBOUNCE_INTERVAL);
+    lastTimeout = window.setTimeout(cb, debounceInterval);
   };
 
   window.util = {

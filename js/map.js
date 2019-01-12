@@ -5,12 +5,16 @@
   var switchesFieldsetsValue = window.util.switchesFieldsetsValue;
   var mainPin = window.data.mainPin;
   var mainPinActiveHeight = window.data.mainPinActiveHeight;
-  var mainPinWidth = window.data.mainPinWidth;
-  var pinCoordX = window.data.pinCoordX;
-  var pinCoordY = window.data.pinCoordY;
-  var mainPinHeight = window.data.mainPinHeight;
-  var enterButton = window.data.keyCodes.enter;
+  var mainPinWidth = window.data.MainPinSize.MAIN_PIN_WIDTH;
+  var mainPinHeight = window.data.MainPinSize.MAIN_PIN_HEIGHT;
+  var pinCoordX = window.data.MainPinCoordintas.MAIN_PIN_COORDINATE_X;
+  var pinCoordY = window.data.MainPinCoordintas.MAIN_PIN_COORDINATE_Y;
+  var maxLocationY = window.data.Location.MAX_LOCATION_Y;
+  var minLocationY = window.data.Location.MIN_LOCATION_Y;
+  var enterButton = window.data.KeyCodes.ENTER;
   var load = window.backend.load;
+  var renderPin = window.pin.render;
+  var errorHandler = window.backend.errorHandler;
 
   var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
     var coordinateX = String(coordX + Math.round(pinWidth));
@@ -25,11 +29,11 @@
     window.form.container.classList.remove('ad-form--disabled');
     switchesFieldsetsValue(window.form.filtersForm, false);
     switchesFieldsetsValue(window.form.fieldsets, false);
-    var onLoadSuccess = function (arr) {
+    var loadSuccessHandler = function (arr) {
       window.data.arr = arr;
-      window.pin.render(arr);
+      renderPin(arr);
     };
-    load(onLoadSuccess, window.backend.onError);
+    load(loadSuccessHandler, errorHandler);
     window.data.isActive = true;
   };
 
@@ -41,7 +45,7 @@
       y: evt.clientY
     };
 
-    var onMouseMove = function (moveEvt) {
+    var mouseMoveHandler = function (moveEvt) {
       moveEvt.preventDefault();
       var shift = {
         x: startCoords.x - moveEvt.clientX,
@@ -59,8 +63,8 @@
       };
 
       var mapWidth = map.offsetWidth - mainPin.offsetWidth;
-      var maxPositionY = window.data.maxLocationY - mainPinActiveHeight;
-      var minPositionY = window.data.minLocationY - mainPinActiveHeight;
+      var maxPositionY = maxLocationY - mainPinActiveHeight;
+      var minPositionY = minLocationY - mainPinActiveHeight;
 
       if (newCoords.x > mapWidth) {
         newCoords.x = mapWidth;
@@ -80,27 +84,25 @@
       getMainPinCoordinates(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10), mainPinWidth, mainPinActiveHeight);
     };
 
-    var onMouseUp = function (upEvt) {
+    var mouseUpHandler = function (upEvt) {
       upEvt.preventDefault();
 
       if (!window.data.isActive) {
         pageActivation();
       }
 
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
     };
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('mouseup', mouseUpHandler);
 
   });
 
   var enterButtonHandler = function (evt) {
-    if (evt.keyCode === enterButton) {
-      if (!window.data.isActive) {
-        pageActivation();
-      }
+    if (evt.keyCode === enterButton && !window.data.isActive) {
+      pageActivation();
     }
   };
 

@@ -1,16 +1,24 @@
 'use strict';
 
 (function () {
-  var SELECT_OPTION_NUMBER = 2;
-  var SELECT_OPTION_VALUE = '100';
   var form = document.querySelector('.ad-form');
   var filtersForm = document.querySelectorAll('.map__filter');
   var fieldsets = document.querySelectorAll('fieldset');
   var formPrice = form.querySelector('#price');
   var formType = form.querySelector('#type');
-  var escButton = window.data.keyCodes.esc;
+  var escButton = window.data.KeyCodes.ESC;
+  var switchesFieldsetsValue = window.util.switchesFieldsetsValue;
+  var mainPin = window.data.mainPin;
+  var pinCoordX = window.data.MainPinCoordintas.MAIN_PIN_COORDINATE_X;
+  var pinCoordY = window.data.MainPinCoordintas.MAIN_PIN_COORDINATE_Y;
+  var mainPinWidth = window.data.MainPinSize.MAIN_PIN_WIDTH;
+  var mainPinHeight = window.data.MainPinSize.MAIN_PIN_HEIGHT;
+  var selectOptionDefault = window.data.selectOptionDefault;
+  var roomsValue = window.data.roomsValue;
+  var closeCard = window.card.close;
+  var addressInput = window.map.addressInput;
 
-  var minPrice = {
+  var minPriceMap = {
     bungalo: 0,
     flat: 1000,
     house: 5000,
@@ -21,15 +29,6 @@
     formPrice.min = price;
     formPrice.placeholder = price;
   };
-
-  var switchesFieldsetsValue = window.util.switchesFieldsetsValue;
-  var mainPin = window.data.mainPin;
-  var pinCoordY = window.data.pinCoordY;
-  var pinCoordX = window.data.pinCoordX;
-  var mainPinWidth = window.data.mainPinWidth;
-  var mainPinHeight = window.data.mainPinHeight;
-  var closeCard = window.card.close;
-  var addressInput = window.map.addressInput;
 
   var getMainPinCoordinates = function (coordX, coodrY, pinWidth, pinHeight) {
     var coordinateX = String(coordX + Math.round(pinWidth));
@@ -44,7 +43,7 @@
   switchesFieldsetsValue(fieldsets, true);
 
   formType.addEventListener('change', function (evt) {
-    setMinPrice(minPrice[evt.target.value]);
+    setMinPrice(minPriceMap[evt.target.value]);
   });
 
   var roomNumbers = form.querySelector('#room_number');
@@ -52,12 +51,12 @@
   var capacityOption = capacity.querySelectorAll('option');
   var submitButton = form.querySelector('.ad-form__submit');
   switchesFieldsetsValue(capacityOption, true);
-  capacityOption[SELECT_OPTION_NUMBER].disabled = false;
+  capacityOption[selectOptionDefault].disabled = false;
 
   roomNumbers.addEventListener('change', function (evt) {
     switchesFieldsetsValue(capacityOption, true);
     var currentValue = evt.target.value;
-    if (currentValue === SELECT_OPTION_VALUE) {
+    if (currentValue === roomsValue) {
       capacityOption[capacityOption.length - 1].disabled = false;
       capacityOption[capacityOption.length - 1].selected = true;
     } else {

@@ -11,18 +11,19 @@
   var closeCard = window.card.close;
   var debounce = window.util.debounce;
   var renderPin = window.pin.render;
-  var priceMap = {
-    min: 10000,
-    max: 50000
+  var Price = {
+    MIN: 10000,
+    MAX: 50000
   };
 
 
   var updatePins = function () {
+    closeCard();
     var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
     pins.forEach(function (pinElement) {
       pinElement.remove();
     });
-    closeCard();
+
 
     var filter = function (el) {
       var typeRes = true;
@@ -47,13 +48,13 @@
       if (housingPrice.options[housingPrice.selectedIndex].value !== 'any') {
         switch (housingPrice.options[housingPrice.selectedIndex].value) {
           case 'middle':
-            priceRes = (el.offer.price > priceMap.min && el.offer.price < priceMap.max);
+            priceRes = el.offer.price > Price.MIN && el.offer.price < Price.MAX;
             break;
           case 'low':
-            priceRes = el.offer.price < priceMap.min;
+            priceRes = el.offer.price < Price.MIN;
             break;
           case 'high':
-            priceRes = el.offer.price > priceMap.max;
+            priceRes = el.offer.price > Price.MAX;
             break;
         }
       }

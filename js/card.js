@@ -3,7 +3,8 @@
 (function () {
   var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
   var filtersContainer = document.querySelector('.map__filters-container');
-  var escButton = window.data.keyCodes.esc;
+  var typesMap = window.data.typesMap;
+  var escButton = window.data.KeyCodes.ESC;
 
   var renderAnnoucementCard = function (obj) {
     var cardItem = cardTemplate.cloneNode(true);
@@ -37,7 +38,7 @@
 
     var cardType = cardItem.querySelector('.popup__type');
 
-    cardType.textContent = window.data.types[obj.offer.type];
+    cardType.textContent = typesMap[obj.offer.type];
     if (obj.offer.rooms !== '' || obj.offer.guests !== '') {
       cardItem.querySelector('.popup__text--capacity').textContent = obj.offer.rooms + ' комнаты для ' + obj.offer.guests + ' гостей.';
     } else {
@@ -83,7 +84,6 @@
   var closeCard = function () {
     var mapCard = document.querySelector('.map__card');
     var pinActive = document.querySelector('.map__pin--active');
-
     if (mapCard) {
       mapCard.remove();
       pinActive.classList.remove('map__pin--active');
