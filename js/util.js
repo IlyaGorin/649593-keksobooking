@@ -4,9 +4,9 @@
   var debounceInterval = window.data.debounceInterval;
 
   var switchesFieldsetsValue = function (arr, value) {
-    for (var i = 0; i < arr.length; i++) {
-      arr[i].disabled = value;
-    }
+    arr.forEach(function (el) {
+      el.disabled = value;
+    });
   };
 
   var lastTimeout;
