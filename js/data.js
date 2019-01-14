@@ -11,6 +11,7 @@
   var ANNOUNCEMENT_AMOUNT = 5;
   var SELECT_OPTION_DEFAULT = 2;
   var ROOMS_VALUE = '100';
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
   var isActive = false;
   var dataArr = [];
 
@@ -62,6 +63,7 @@
     announcementAmount: ANNOUNCEMENT_AMOUNT,
     selectOptionDefault: SELECT_OPTION_DEFAULT,
     roomsValue: ROOMS_VALUE,
+    fileTypes: FILE_TYPES,
     isActive: isActive,
     arr: dataArr,
     typesMap: typesMap,

@@ -17,6 +17,8 @@
   var roomsValue = window.data.roomsValue;
   var closeCard = window.card.close;
   var addressInput = window.map.addressInput;
+  var resetAvatar = window.avatar.reset;
+  var resetImages = window.images.reset;
 
   var minPriceMap = {
     bungalo: 0,
@@ -88,13 +90,13 @@
 
     closeCard();
     var pins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
-    for (var i = 0; i < pins.length; i++) {
-      pins[i].remove();
-    }
+    pins.forEach(function (el) {
+      el.remove();
+    });
 
-    for (var j = 0; j < formInput.length; j++) {
-      formInput[j].style.boxShadow = '';
-    }
+    formInput.forEach(function (el) {
+      el.style.boxShadow = '';
+    });
 
     capacity.style.boxShadow = '';
 
@@ -104,6 +106,8 @@
     mainPin.style.left = pinCoordX + 'px';
     getMainPinCoordinates(parseInt(mainPin.style.left, 10), parseInt(mainPin.style.top, 10), mainPinWidth, mainPinHeight);
     window.data.isActive = false;
+    resetAvatar();
+    resetImages();
   };
 
   resetButton.addEventListener('click', resetButtonClickHandler);
@@ -133,12 +137,12 @@
       capacity.style.boxShadow = '0 0 3px 3px red';
     }
 
-    for (var i = 0; i < formInput.length; i++) {
-      formInput[i].style.boxShadow = '';
-      if (!formInput[i].checkValidity()) {
-        formInput[i].style.boxShadow = '0 0 3px 3px red';
+    formInput.forEach(function (el) {
+      el.style.boxShadow = '';
+      if (!el.checkValidity()) {
+        el.style.boxShadow = '0 0 3px 3px red';
       }
-    }
+    });
   };
 
   submitButton.addEventListener('click', submitButtonClickHandler);
